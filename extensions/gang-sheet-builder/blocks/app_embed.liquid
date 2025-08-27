@@ -1,0 +1,15 @@
+{%- liquid
+  assign settings = shop.metafields.custom.height_width_settings.value
+-%}
+
+<script>
+  window.heightWidthPickerSettings = {{ settings | json }};
+  document.dispatchEvent(new CustomEvent('heightWidthPickerSettingsLoaded'));
+</script>
+
+{% schema %}
+{
+  "name": "H&W Settings Loader",
+  "target": "body"
+}
+{% endschema %}

@@ -1,0 +1,418 @@
+<style>
+  .hwp-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .hwp-input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+  }
+  .hwp-input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .hwp-input-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 0.7em top 50%, 0 0;
+    background-size: 0.65em auto, 100%;
+  }
+  .hwp-input-group input[disabled] {
+    background-color: #f1f1f1;
+    cursor: not-allowed;
+    border-style: solid;
+  }
+  .hwp-lock-icon {
+    position: absolute;
+    top: 80%;
+    right: 12px;
+    transform: translateY(-70%);
+    pointer-events: none;
+    display: none;
+    width: 16px;
+    height: 16px;
+  }
+  .hwp-input-group input:disabled ~ .hwp-lock-icon {
+    display: block;
+  }
+  .image-uploader {
+    border: 2px dashed #90a4ae;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+  }
+  .image-uploader:hover {
+    border-color: #999;
+  }
+  .image-uploader input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .image-preview {
+    margin-top: 1rem;
+    border: 1px solid #ddd;
+    display: none; /* Hide by default */
+  }
+  #preview-canvas-{{ block.id }} {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  .add-to-cart-button {
+    background-color: #0d47a1;
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+  }
+</style>
+
+{%- liquid
+  assign hwp_settings = shop.metafields.custom.height_width_settings.value
+  assign price_rules = hwp_settings.priceRules | default: '[]'
+  assign is_width_locked = false
+  if hwp_settings.lockWidth == true or hwp_settings.lockWidth == 'true' or block.settings.lock_width
+    assign is_width_locked = true
+  endif
+
+  assign is_height_locked = false
+-%}
+
+<div class="height-width-picker">
+  <div class="image-uploader">
+    <input type="file" id="image-upload-{{ block.id }}" accept="image/*">
+    <label for="image-upload-{{ block.id }}">
+      <strong>Drag & drop or click to upload your image</strong>
+    </label>
+  </div>
+
+  <div class="image-preview">
+    <canvas id="preview-canvas-{{ block.id }}"></canvas>
+  </div>
+
+  <div class="hwp-input-group">
+    <input
+      type="number"
+      id="width-{{ block.id }}"
+      value="{{ hwp_settings.defaultWidth | default: block.settings.default_width | default: 22 }}"
+      {% if is_width_locked %}disabled{% endif %}
+    >
+    <svg class="hwp-lock-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+    </svg>
+  </div>
+
+  <div class="hwp-input-group">
+    <label for="height-{{ block.id }}">Height (feet)</label>
+    <select id="height-{{ block.id }}" class="hwp-select">
+      {%- for rule in price_rules -%}
+        <option value="{{ rule.height }}">{{ rule.height }} ft</option>
+      {%- endfor -%}
+    </select>
+    <input
+      type="number"
+      id="height-input-{{ block.id }}"
+      class="hwp-input"
+      value="{{ hwp_settings.priceRules[0].height | default: block.settings.default_height | default: 2 }}"
+      style="display: none;"
+      disabled
+    >
+    <svg id="lock-icon-{{ block.id }}" class="hwp-lock-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="display: none;">
+      <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+    </svg>
+    <svg id="unlock-icon-{{ block.id }}" class="hwp-lock-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10 2a5 5 0 00-5 5v2h10V7a5 5 0 00-5-5zM9 6.5a1 1 0 012 0V7h-2V6.5z" />
+      <path fill-rule="evenodd" d="M5 9v6a2 2 0 002 2h6a2 2 0 002-2V9H5zm6 3a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" />
+    </svg>
+  </div>
+
+
+  <div class="hwp-input-group">
+    <label for="quantity-{{ block.id }}">Quantity</label>
+    <input type="number" id="quantity-{{ block.id }}" value="1" min="1">
+  </div>
+  <div class="price-display">
+    <strong>Price:</strong> <span id="calculated-price-{{ block.id }}">$0.00</span>
+  </div>
+
+<form method="post" action="/cart/add" id="product-form-{{ block.id }}">
+  <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+  <input type="hidden" name="properties[Width]" id="hidden-width-{{ block.id }}" value="{{ hwp_settings.defaultWidth | default: block.settings.default_width | default: 22 }}">
+  <input type="hidden" name="properties[Height]" id="hidden-height-{{ block.id }}" value="{{ hwp_settings.priceRules[0].height | default: block.settings.default_height | default: 2 }}">
+  <input type="hidden" name="properties[Custom_Price]" id="hidden-price-{{ block.id }}" value="">
+  <input type="hidden" name="properties[Final Price]" id="hidden-final-price-{{ block.id }}" value="">
+
+  <button type="submit" class="add-to-cart-button">Add to cart</button>
+</form>
+</div>
+
+<script>
+  const priceRules = {{ shop.metafields.custom.height_width_settings.value.priceRules | json }};
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const blockId = '{{ block.id }}';
+    const imageUpload = document.getElementById(`image-upload-${blockId}`);
+    const canvas = document.getElementById(`preview-canvas-${blockId}`);
+    const ctx = canvas.getContext('2d');
+    const widthInput = document.getElementById(`width-${blockId}`);
+    const heightSelect = document.getElementById(`height-${blockId}`);
+    const heightInput = document.getElementById(`height-input-${blockId}`);
+    const priceDisplay = document.getElementById(`calculated-price-${blockId}`);
+    const hiddenWidthInput = document.getElementById(`hidden-width-${blockId}`);
+    const hiddenHeightInput = document.getElementById(`hidden-height-${blockId}`);
+    const hiddenPriceInput = document.getElementById(`hidden-price-${blockId}`);
+    const productForm = document.getElementById(`product-form-${blockId}`);
+    const quantityInput = document.getElementById(`quantity-${blockId}`);
+    const lockIcon = document.getElementById(`lock-icon-${blockId}`);
+    const unlockIcon = document.getElementById(`unlock-icon-${blockId}`);
+
+    const fixedWidthInches = parseFloat(widthInput.value);
+    const dpi = 300;
+
+    // Allowed height slabs in feet
+    const heightSlabsInches = priceRules.map(rule => {
+      if (rule.unit === 'ft') {
+        return parseFloat(rule.height) * 12;
+      }
+      return parseFloat(rule.height);
+    });
+
+    imageUpload.addEventListener('change', handleImageUpload);
+    heightSelect.addEventListener('change', () => updatePrice(parseFloat(heightSelect.value), parseInt(quantityInput.value)));
+    quantityInput.addEventListener('change', () => {
+        const height = heightInput.style.display === 'none' ? heightSelect.value : heightInput.value;
+        updatePrice(parseFloat(height), parseInt(quantityInput.value));
+    });
+
+    // Initial price update
+    updatePrice(parseFloat(heightSelect.value), parseInt(quantityInput.value));
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          processImage(img);
+        }
+        img.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+      document.querySelector('.image-preview').style.display = 'block'; // Show on image upload
+    }
+
+    function processImage(img) {
+      const aspectRatio = img.width / img.height;
+      const scaledHeightInches = fixedWidthInches / aspectRatio;
+
+      let requiredHeightInches = 12; // Default to 1ft
+      for (const slabInches of heightSlabsInches) {
+        if (scaledHeightInches <= slabInches) {
+          requiredHeightInches = slabInches;
+          break;
+        }
+      }
+      
+      // If the required height is larger than the largest slab, use the largest slab
+      if (heightSlabsInches.length > 0 && scaledHeightInches > heightSlabsInches[heightSlabsInches.length - 1]) {
+        requiredHeightInches = heightSlabsInches[heightSlabsInches.length - 1];
+      }
+
+      const requiredHeightFeet = requiredHeightInches / 12;
+      heightInput.value = requiredHeightFeet.toFixed(2);
+      hiddenWidthInput.value = fixedWidthInches;
+      hiddenHeightInput.value = requiredHeightFeet.toFixed(2);
+
+      // Switch to input field and lock it
+      heightSelect.style.display = 'none';
+      heightInput.style.display = 'block';
+      heightInput.disabled = true;
+      lockIcon.style.display = 'block';
+      unlockIcon.style.display = 'none';
+
+      updatePrice(requiredHeightFeet, parseInt(quantityInput.value));
+      drawPreview(img, fixedWidthInches, requiredHeightInches);
+    }
+
+    // Add this helper function to update price
+    function updateCartPrice(cartItem, newPrice) {
+      return fetch('/cart/change.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: cartItem.key,
+          properties: {
+            ...cartItem.properties,
+            '_original_price': cartItem.original_price,
+            '_final_price': newPrice * 100
+          }
+        })
+      }).then(res => res.json());
+    }
+
+    // Update the updatePrice function to include price calculation
+    function updatePrice(heightFeet, quantity) {
+      try {
+        const heightInches = heightFeet * 12;
+        let price = null;
+
+        // Sort rules by height ascending
+        const sortedRules = [...priceRules].sort((a, b) => {
+          const heightA = a.unit === 'ft' ? parseFloat(a.height) * 12 : parseFloat(a.height);
+          const heightB = b.unit === 'ft' ? parseFloat(b.height) * 12 : parseFloat(b.height);
+          return heightA - heightB;
+        });
+
+        // Find matching price rule
+        for (const rule of sortedRules) {
+          const ruleHeightInches = rule.unit === 'ft' ? parseFloat(rule.height) * 12 : parseFloat(rule.height);
+          if (heightInches <= ruleHeightInches) {
+            price = parseFloat(rule.price);
+            break;
+          }
+        }
+
+        if (price !== null) {
+          const totalPrice = price * (quantity || 1);
+          priceDisplay.textContent = `$${totalPrice.toFixed(2)}`;
+          hiddenPriceInput.value = totalPrice.toFixed(2);
+          document.getElementById(`hidden-final-price-${blockId}`).value = totalPrice.toFixed(2);
+        } else {
+          priceDisplay.textContent = 'Price not available';
+        }
+      } catch (error) {
+        console.error('Price calculation error:', error);
+        priceDisplay.textContent = 'Price calculation error';
+      }
+    }
+
+    function drawPreview(img, canvasWidthInches, canvasHeightInches) {
+      const previewDpi = 72;
+      const aspectRatio = img.width / img.height;
+      
+      const canvasWidth = canvasWidthInches * previewDpi;
+      const scaledHeight = canvasWidth / aspectRatio;
+
+      canvas.width = canvasWidth;
+      canvas.height = scaledHeight; // Set canvas height to match scaled image height
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, scaledHeight);
+    }
+
+    // Add form submission handler
+    productForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const finalPrice = document.getElementById(`hidden-final-price-${blockId}`).value;
+      const variantId = this.querySelector('input[name="id"]').value;
+      
+      // Create the cart item data with selling_plan data
+      const data = {
+        items: [{
+          id: variantId,
+          quantity: parseInt(quantityInput.value, 10),
+          properties: {
+            'Width': widthInput.value,
+            'Height': heightInput.value,
+            'Custom_Price': finalPrice
+          }
+        }]
+      };
+
+      // Add to cart using fetch
+      fetch(window.Shopify.routes.root + 'cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 422) {
+          throw new Error(result.description);
+        }
+        
+        // Refresh mini cart or redirect to cart page
+        if (typeof window.refreshMiniCart === 'function') {
+          window.refreshMiniCart();
+        } else {
+          window.location.href = window.Shopify.routes.root + 'cart';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add to cart. Please try again.');
+      });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Height and Width Picker",
+  "target": "section",
+  "settings": [
+    {
+      "type": "number",
+      "id": "default_width",
+      "label": "Default width (inches)",
+      "default": 22
+    },
+    {
+      "type": "number",
+      "id": "default_height",
+      "label": "Default height (feet)",
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "lock_width",
+      "label": "Lock width",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "lock_height",
+      "label": "Lock height",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "image_url",
+      "label": "Image URL"
+    }
+  ]
+}
+{% endschema %}

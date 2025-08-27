@@ -1,0 +1,17 @@
+query run($cart: Input!) {
+  cart {
+    lines {
+      id
+      quantity
+      merchandise {
+        ... on ProductVariant {
+          id
+        }
+      }
+      attribute(key: "Custom_Price") {
+        key
+        value
+      }
+    }
+  }
+}
