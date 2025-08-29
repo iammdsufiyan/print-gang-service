@@ -284,6 +284,8 @@ export default function HeightWidthSettingsPage() {
                                 handlePriceRuleChange(index, "price", value)
                               }
                               autoComplete="off"
+                              min={0}
+                              step={0.01}
                             />
                           </div>
                           <Button

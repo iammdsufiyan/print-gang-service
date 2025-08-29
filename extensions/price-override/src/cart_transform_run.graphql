@@ -1,16 +1,25 @@
-query run($cart: Input!) {
+query Input {
   cart {
     lines {
       id
       quantity
+      cost {
+        subtotalAmount {
+          amount
+          currencyCode
+        }
+      }
+      attributes {
+        key
+        value
+      }
       merchandise {
         ... on ProductVariant {
           id
+          price {
+            amount
+          }
         }
-      }
-      attribute(key: "Custom_Price") {
-        key
-        value
       }
     }
   }

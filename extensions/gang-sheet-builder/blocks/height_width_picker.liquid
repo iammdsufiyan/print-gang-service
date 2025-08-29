@@ -116,6 +116,7 @@
   </div>
 
   <div class="hwp-input-group">
+    <label for="width-{{ block.id }}">Width (inches)</label>
     <input
       type="number"
       id="width-{{ block.id }}"
@@ -160,15 +161,15 @@
     <strong>Price:</strong> <span id="calculated-price-{{ block.id }}">$0.00</span>
   </div>
 
-<form method="post" action="/cart/add" id="product-form-{{ block.id }}">
+<div id="product-form-{{ block.id }}">
   <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
   <input type="hidden" name="properties[Width]" id="hidden-width-{{ block.id }}" value="{{ hwp_settings.defaultWidth | default: block.settings.default_width | default: 22 }}">
   <input type="hidden" name="properties[Height]" id="hidden-height-{{ block.id }}" value="{{ hwp_settings.priceRules[0].height | default: block.settings.default_height | default: 2 }}">
   <input type="hidden" name="properties[Custom_Price]" id="hidden-price-{{ block.id }}" value="">
   <input type="hidden" name="properties[Final Price]" id="hidden-final-price-{{ block.id }}" value="">
+</div>
 
-  <button type="submit" class="add-to-cart-button">Add to cart</button>
-</form>
+<button type="button" class="add-to-cart-button" id="add-to-cart-button-{{ block.id }}">Add to cart</button>
 </div>
 
 <script>
@@ -329,12 +330,10 @@
       ctx.drawImage(img, 0, 0, canvas.width, scaledHeight);
     }
 
-    // Add form submission handler
-    productForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
+    // Add to cart button handler
+    document.getElementById(`add-to-cart-button-${blockId}`).addEventListener('click', function() {
       const finalPrice = document.getElementById(`hidden-final-price-${blockId}`).value;
-      const variantId = this.querySelector('input[name="id"]').value;
+      const variantId = document.querySelector(`#product-form-{{ block.id }} input[name="id"]`).value;
       
       // Create the cart item data with selling_plan data
       const data = {
@@ -344,10 +343,12 @@
           properties: {
             'Width': widthInput.value,
             'Height': heightInput.value,
-            'Custom_Price': finalPrice
-          }
+            'custom_price': finalPrice,
+          },
         }]
       };
+
+      console.log('Adding to cart with data:', data);
 
       // Add to cart using fetch
       fetch(window.Shopify.routes.root + 'cart/add.js', {

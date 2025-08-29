@@ -3,30 +3,30 @@
 client_id = "dfa2864b78c76ba6a816f017e202600f"
 name = "customise  on dimension"
 handle = "customise-on-dimension"
-application_url = "https://ii-perception-eligible-involve.trycloudflare.com"
+application_url = "https://blowing-flavor-historic-salad.trycloudflare.com"
 embedded = true
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true
+include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-07"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
-
-  [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
   uri = "/webhooks/app/scopes_update"
 
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products,write_discounts"
+scopes = "write_discounts,write_products"
 
 [auth]
-redirect_urls = ["https://ii-perception-eligible-involve.trycloudflare.com/auth/callback", "https://ii-perception-eligible-involve.trycloudflare.com/auth/shopify/callback", "https://ii-perception-eligible-involve.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://blowing-flavor-historic-salad.trycloudflare.com/auth/callback", "https://blowing-flavor-historic-salad.trycloudflare.com/auth/shopify/callback", "https://blowing-flavor-historic-salad.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
