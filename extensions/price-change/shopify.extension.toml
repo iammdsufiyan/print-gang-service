@@ -2,7 +2,7 @@ api_version = "2025-07"
 
 [[extensions]]
 name = "t:name"
-handle = "price-override"
+handle = "price-change"
 type = "function"
 
 description = "t:description"

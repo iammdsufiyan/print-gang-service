@@ -1,0 +1,12 @@
+query CartTransformRunInput {
+  cart {
+    lines {
+      id
+      quantity
+      attribute {
+        key
+        value
+      }
+    }
+  }
+}
