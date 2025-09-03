@@ -1,21 +1,17 @@
-api_version = "2025-07"
+api_version = "2025-04"
 
 [[extensions]]
 name = "t:name"
 handle = "price-change"
 type = "function"
-
 description = "t:description"
 
   [[extensions.targeting]]
   target = "cart.transform.run"
   input_query = "src/cart_transform_run.graphql"
-  export = "cart-transform-run"
+  export = "cart_transform_run"
 
   [extensions.build]
-  command = ""
-  path = "dist/function.wasm"
-
-  [extensions.ui.paths]
-  create = "/"
-  details = "/"
+  command = "cargo build --target=wasm32-wasip1 --release"
+  path = "target/wasm32-wasip1/release/price-change.wasm"
+  watch = [ "src/**/*.rs" ]
