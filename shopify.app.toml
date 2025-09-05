@@ -3,7 +3,7 @@
 client_id = "dfa2864b78c76ba6a816f017e202600f"
 name = "customise  on dimension"
 handle = "customise-on-dimension"
-application_url = "https://rest-rail-we-accent.trycloudflare.com"
+application_url = "https://responsible-rent-firm-mg.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_discounts,write_products"
 
 [auth]
-redirect_urls = ["https://rest-rail-we-accent.trycloudflare.com/auth/callback", "https://rest-rail-we-accent.trycloudflare.com/auth/shopify/callback", "https://rest-rail-we-accent.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://responsible-rent-firm-mg.trycloudflare.com/auth/callback", "https://responsible-rent-firm-mg.trycloudflare.com/auth/shopify/callback", "https://responsible-rent-firm-mg.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

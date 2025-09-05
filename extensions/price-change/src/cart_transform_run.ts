@@ -5,23 +5,26 @@ import {
   Operation,
 } from "../generated/api";
 
-export function cartTransformRun(input: CartTransformRunInput): CartTransformRunResult {
+export function cartTransformRun(input: CartTransformRunInput): CartTransformRunResult { 
   const operations: CartOperation[] = [];
 
   for (const line of input.cart.lines) {
-    const customPriceAttr = line.attribute;
+    const attributes = (line as any).attributes || (line.attribute ? [line.attribute] : []);
+    const customPriceAttr = attributes.find((attr: { key: string; }) => attr.key === "custom_price");
 
-    if (customPriceAttr && customPriceAttr.key === "custom_price" && customPriceAttr.value) {
+    if (customPriceAttr && customPriceAttr.value) {
       const customPrice = parseFloat(customPriceAttr.value);
+      const quantity = line.quantity > 0 ? line.quantity : 1;
+      const pricePerUnit = customPrice / quantity;
       
-      if (!isNaN(customPrice) && customPrice >= 0) {
+      if (!isNaN(pricePerUnit) && pricePerUnit >= 0) {
         operations.push({
           update: {
             cartLineId: line.id,
             price: {
               adjustment: {
                 fixedPricePerUnit: {
-                  amount: customPrice.toString()
+                  amount: pricePerUnit.toFixed(2)
                 }
               }
             }
