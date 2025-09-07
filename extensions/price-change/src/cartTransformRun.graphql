@@ -2,7 +2,7 @@ query CartTransformRunInput {
   cart {
     lines {
       id
-      quantity
+ 
       attributesss {
         key
         value
